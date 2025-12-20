@@ -50,6 +50,9 @@ router.post("/google", googleAuth);
  * @access  Public
  */
 router.get("/google", (req, res, next) => {
+  const host = req.get("host");
+  const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
+  const callbackURL = `${proto}://${host}/api/auth/google/callback`;
   getPassport().authenticate("google", { scope: ["profile", "email"] })(req, res, next);
 });
 
@@ -70,6 +73,9 @@ router.get("/google/callback", (req, res, next) => {
     
     // Admin email restriction: Only focusai.reminder.bot@gmail.com can access admin dashboard
     if (user.role === "admin" && user.email !== "focusai.reminder.bot@gmail.com") {
+      const host = req.get("host");
+      const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
+      const callbackURL = `${proto}://${host}/api/auth/google/callback`;
       const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
       return res.redirect(`${frontendUrl}/login?error=unauthorized_admin`);
     }
