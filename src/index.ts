@@ -83,7 +83,10 @@ const PORT = process.env.PORT || 5000;
 connectDB()
   .then(() => {
     console.log("Starting server...");
-    app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+    // Only listen locally, not in Vercel
+    if (!process.env.VERCEL) {
+      app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+    }
     // start recurrence worker after DB connection
     try {
       startRecurrenceWorker(60 * 1000);
