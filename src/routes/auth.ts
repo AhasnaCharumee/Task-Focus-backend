@@ -114,7 +114,10 @@ router.post("/create-admin", validateRequest(["name", "email", "password"]), cre
  * @access  Public
  */
 router.get("/facebook", (req, res, next) => {
-  getPassport().authenticate("facebook", { scope: ["public_profile"] })(req, res, next);
+  const host = req.get("host");
+  const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
+  const callbackURL = `${proto}://${host}/api/auth/facebook/callback`;
+  getPassport().authenticate("facebook", { scope: ["public_profile"], callbackURL })(req, res, next);
 });
 
 /**
@@ -123,7 +126,10 @@ router.get("/facebook", (req, res, next) => {
  * @access  Public
  */
 router.get("/facebook/callback", (req, res, next) => {
-  getPassport().authenticate("facebook", { session: false }, (err: any, user: any) => {
+  const host = req.get("host");
+  const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
+  const callbackURL = `${proto}://${host}/api/auth/facebook/callback`;
+  getPassport().authenticate("facebook", { session: false, callbackURL }, (err: any, user: any) => {
     if (err) {
       console.error("Facebook auth error:", err);
       return res.status(500).json({ message: "Authentication failed" });
