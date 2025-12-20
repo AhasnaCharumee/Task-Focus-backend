@@ -59,14 +59,19 @@ app.use(
 // Initialize Passport.js
 app.use(passport.initialize());
 
-// Mount routes
+// Mount all routes BEFORE DB connection
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/categories", categoriesRoutes);
-app.use("/api/test", testReminderRoutes); // Test endpoint for email reminders
-app.use("/api/test", testAdminRoutes); // Test endpoint for admin promotion
+app.use("/api/notifications", notificationsRoutes);
+app.use("/api/export", exportRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/settings", settingsRoutes);
+app.use("/api/feedback", feedbackRoutes);
+app.use("/api/test", testReminderRoutes);
+app.use("/api/test", testAdminRoutes);
 
 // Basic error handler
 app.use((err: any, req: any, res: any, next: any) => {
@@ -82,7 +87,7 @@ const PORT = process.env.PORT || 5000;
 
 connectDB()
   .then(() => {
-    console.log("Starting server...");
+    console.log("DB Connected. Starting workers...");
     // Only listen locally, not in Vercel
     if (!process.env.VERCEL) {
       app.listen(PORT, () => console.log(`Server running on ${PORT}`));
@@ -104,14 +109,9 @@ connectDB()
     } catch (err) {
       console.error("Failed to start task reminder job:", err);
     }
-    app.use("/api/notifications", notificationsRoutes);
-    app.use("/api/export", exportRoutes);
-    app.use("/api/profile", profileRoutes);
-    app.use("/api/settings", settingsRoutes);
-    app.use("/api/feedback", feedbackRoutes);
   })
   .catch((err) => {
-    console.error("Failed to start server due to DB connection error", err);
+    console.error("DB connection error (app still running):", err);
   });
 
 export default app;
