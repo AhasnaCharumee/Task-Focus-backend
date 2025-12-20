@@ -59,6 +59,14 @@ app.use(
 // Initialize Passport.js
 app.use(passport.initialize());
 
+// Health check and favicon handlers to avoid 500 on root
+app.get("/", (req, res) => {
+  res.status(200).send("Task Focus API is running");
+});
+app.get("/favicon.ico", (req, res) => {
+  res.status(204).end();
+});
+
 // Mount all routes BEFORE DB connection
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
