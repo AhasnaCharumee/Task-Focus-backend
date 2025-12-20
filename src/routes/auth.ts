@@ -53,7 +53,7 @@ router.get("/google", (req, res, next) => {
   const host = req.get("host");
   const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
   const callbackURL = `${proto}://${host}/api/auth/google/callback`;
-  getPassport().authenticate("google", { scope: ["profile", "email"] })(req, res, next);
+  getPassport().authenticate("google", { scope: ["profile", "email"], callbackURL })(req, res, next);
 });
 
 /**
@@ -62,7 +62,10 @@ router.get("/google", (req, res, next) => {
  * @access  Public
  */
 router.get("/google/callback", (req, res, next) => {
-  getPassport().authenticate("google", { session: false }, (err: any, user: any) => {
+  const host = req.get("host");
+  const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
+  const callbackURL = `${proto}://${host}/api/auth/google/callback`;
+  getPassport().authenticate("google", { session: false, callbackURL }, (err: any, user: any) => {
     if (err) {
       console.error("Google auth error:", err);
       return res.status(500).json({ message: "Authentication failed", error: err.message });
@@ -171,7 +174,10 @@ router.get("/facebook/callback", (req, res, next) => {
  * @access  Public
  */
 router.get("/github", (req, res, next) => {
-  getPassport().authenticate("github", { scope: ["user:email"] })(req, res, next);
+  const host = req.get("host");
+  const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
+  const callbackURL = `${proto}://${host}/api/auth/github/callback`;
+  getPassport().authenticate("github", { scope: ["user:email"], callbackURL })(req, res, next);
 });
 
 /**
@@ -180,7 +186,10 @@ router.get("/github", (req, res, next) => {
  * @access  Public
  */
 router.get("/github/callback", (req, res, next) => {
-  getPassport().authenticate("github", { session: false }, (err: any, user: any, info: any) => {
+  const host = req.get("host");
+  const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
+  const callbackURL = `${proto}://${host}/api/auth/github/callback`;
+  getPassport().authenticate("github", { session: false, callbackURL }, (err: any, user: any, info: any) => {
     if (err) {
       console.error("GitHub auth error:", err);
       return res.status(500).json({ message: "Authentication failed", error: err.message });
