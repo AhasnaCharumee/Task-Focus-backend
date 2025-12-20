@@ -1,4 +1,4 @@
-// Use the compiled JavaScript output so Vercel can resolve it reliably
-import app from "../dist/index";
+// Import from TypeScript sources; @vercel/node will trace and transpile
+import app from "../src/index";
 
 export default app;
