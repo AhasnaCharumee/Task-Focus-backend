@@ -1,20 +1,25 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-dotenv.config();
 
-const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/taskfocus";
-console.log("[DEBUG] MONGO_URI:", mongoUri);
+const mongoUri = process.env.MONGO_URI!;
+if (!mongoUri) {
+  throw new Error("MONGO_URI is not defined");
+}
 
-let isConnected = false;
+let cached = (global as any).mongoose;
+if (!cached) {
+  cached = (global as any).mongoose = { conn: null, promise: null };
+}
 
-export const connectDB = async () => {
-  if (isConnected) return;
-  try {
-    await mongoose.connect(mongoUri);
-    isConnected = true;
-    console.log("MongoDB connected");
-  } catch (err) {
-    console.error("MongoDB connection error:", err);
-    process.exit(1);
+const connectDB = async () => {
+  if (cached.conn) {
+    return cached.conn;
   }
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(mongoUri, { bufferCommands: false }).then((mongoose) => mongoose);
+  }
+  cached.conn = await cached.promise;
+  console.log("MongoDB connected");
+  return cached.conn;
 };
+
+export default connectDB;

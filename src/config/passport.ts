@@ -11,7 +11,6 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback',
     },
     async (accessToken: string, refreshToken: string, profile: any, done: any) => {
       try {
@@ -42,7 +41,6 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_APP_ID || '',
       clientSecret: process.env.FACEBOOK_APP_SECRET || '',
-      callbackURL: process.env.FACEBOOK_CALLBACK_URL || 'http://localhost:5000/api/auth/facebook/callback',
       profileFields: ['id', 'displayName', 'photos'],
     },
     async (accessToken: string, refreshToken: string, profile: any, done: any) => {
@@ -74,7 +72,6 @@ passport.use(
     {
       clientID: process.env.GITHUB_CLIENT_ID || '',
       clientSecret: process.env.GITHUB_CLIENT_SECRET || '',
-      callbackURL: process.env.GITHUB_CALLBACK_URL || 'http://localhost:5000/api/auth/github/callback',
       userAgent: 'FocusAI-App', // Required by GitHub API
     },
     async (accessToken: string, refreshToken: string, profile: any, done: any) => {
@@ -113,17 +110,5 @@ passport.use(
   )
 );
 
-passport.serializeUser((user: any, done: any) => {
-  done(null, user._id);
-});
-
-passport.deserializeUser(async (id: string, done: any) => {
-  try {
-    const user = await User.findById(id);
-    done(null, user);
-  } catch (err) {
-    done(err);
-  }
-});
 
 export default passport;
