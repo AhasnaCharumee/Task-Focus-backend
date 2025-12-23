@@ -14,897 +14,7 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
     const existing = await User.findOne({ email });
     if (existing) return res.status(409).json({ message: "User already exists" });
 
-    const 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    hashed = await bcrypt.hash(password, 12);
+    const hashed = await bcrypt.hash(password, 12);
     const user = await User.create({ name, email, password: hashed, role: "user" });
 
     const token = signToken({ id: user._id, email: user.email, role: user.role });
@@ -957,8 +67,8 @@ export const createAdmin = async (req: Request, res: Response, next: NextFunctio
     const admin = await User.create({ name, email, password: hashed, role: "admin" });
 
     res.status(201).json({ message: "Admin created", admin });
-  } catch (err) {
-    next(err);
+  } catch (err: any) {
+    return res.status(500).json({ message: "Admin creation failed", error: err?.message || String(err) });
   }
 };
 
@@ -1000,43 +110,84 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     });
 
     try { await LoginHistory.create({ user: user._id, ip: req.ip, userAgent: req.headers["user-agent"] as string, success: true }); } catch (e) { console.warn(e); }
-  } catch (err) {
-    next(err);
+  } catch (err: any) {
+    return res.status(500).json({ message: "Login failed", error: err?.message || String(err) });
   }
 };
 
 
 // GOOGLE AUTH
-// POST /api/auth/google - Google Sign-in with ID Token
+
 export const googleSignIn = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log('[DEBUG] googleAuth body:', req.body);
     // Expect frontend to send Google ID token (issued to your Google client id)
     const { idToken } = req.body;
-    if (!idToken) return res.status(400).json({ message: "Missing idToken" });
+    if (!idToken) {
+      console.error('[ERROR] Missing idToken in request body');
+      return res.status(400).json({ message: "Missing idToken" });
+    }
 
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-    const ticket = await client.verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID });
-    const payload = ticket.getPayload();
+    let ticket, payload;
+    try {
+      ticket = await client.verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID });
+      payload = ticket.getPayload();
+    } catch (verifyErr: any) {
+      console.error('[ERROR] Google ID token verification failed:', verifyErr?.message || String(verifyErr));
+      return res.status(400).json({ message: "Invalid Google token", error: verifyErr?.message || String(verifyErr) });
+    }
 
-    if (!payload || !payload.email) return res.status(400).json({ message: "Invalid Google token" });
+    if (!payload || !payload.email) {
+      console.error('[ERROR] Google token payload missing email:', payload);
+      return res.status(400).json({ message: "Invalid Google token" });
+    }
 
     const email = payload.email;
-    const name = payload.name || payload.email.split("@")[0];
+    const name = payload.name || payload.email.split("@") [0];
     const googleId = payload.sub; // Google's unique user id
 
-    let user: any = await User.findOne({ email });
+    let user: any;
+    try {
+      user = await User.findOne({ email });
+    } catch (dbFindErr: any) {
+      console.error('[ERROR] User.findOne failed:', dbFindErr?.message || String(dbFindErr));
+      return res.status(500).json({ message: "Database error", error: dbFindErr?.message || String(dbFindErr) });
+    }
     if (!user) {
       // For OAuth-created users, generate a random password and store its hash
       const randomPass = Math.random().toString(36).slice(2) + Date.now().toString(36);
-      const hashed = await bcrypt.hash(randomPass, 12);
-      user = await User.create({ name, email, password: hashed, role: "user", googleId });
+      let hashed;
+      try {
+        hashed = await bcrypt.hash(randomPass, 12);
+      } catch (hashErr: any) {
+        console.error('[ERROR] bcrypt.hash failed:', hashErr?.message || String(hashErr));
+        return res.status(500).json({ message: "Password hash error", error: hashErr?.message || String(hashErr) });
+      }
+      try {
+        user = await User.create({ name, email, password: hashed, role: "user", googleId });
+      } catch (createErr: any) {
+        console.error('[ERROR] User.create failed:', createErr?.message || String(createErr));
+        return res.status(500).json({ message: "User creation error", error: createErr?.message || String(createErr) });
+      }
     } else if (!user.googleId && googleId) {
       // If user exists but googleId not set (they previously signed up with email), link the Google id
       user.googleId = googleId;
-      await user.save();
+      try {
+        await user.save();
+      } catch (saveErr: any) {
+        console.error('[ERROR] user.save() failed:', saveErr?.message || String(saveErr));
+        return res.status(500).json({ message: "User update error", error: saveErr?.message || String(saveErr) });
+      }
     }
 
-    const token = signToken({ id: user._id, email: user.email, role: user.role });
+    let token;
+    try {
+      token = signToken({ id: user._id, email: user.email, role: user.role });
+    } catch (tokenErr: any) {
+      console.error('[ERROR] signToken failed:', tokenErr?.message || String(tokenErr));
+      return res.status(500).json({ message: "Token generation error", error: tokenErr?.message || String(tokenErr) });
+    }
 
     res.status(200).json({
       message: "Google login successful",
@@ -1044,17 +195,10 @@ export const googleSignIn = async (req: Request, res: Response, next: NextFuncti
       user: { _id: user._id, id: user._id, email: user.email, name: user.name, role: user.role },
     });
 
-    try { await LoginHistory.create({ user: user._id, ip: req.ip, userAgent: req.headers["user-agent"] as string, success: true }); } catch (e) { console.warn(e); }
+    try { await LoginHistory.create({ user: user._id, ip: req.ip, userAgent: req.headers["user-agent"] as string, success: true }); } catch (e) { console.warn('[WARN] LoginHistory.create failed:', e); }
   } catch (err: any) {
-    console.error("googleSignIn error:", err);
-    try { await LoginHistory.create({ ip: req.ip, userAgent: req.headers["user-agent"] as string, success: false }); } catch (e) { console.warn(e); }
+    console.error("[FATAL] googleAuth error:", err);
+    try { await LoginHistory.create({ ip: req.ip, userAgent: req.headers["user-agent"] as string, success: false }); } catch (e) { console.warn('[WARN] LoginHistory.create failed:', e); }
     return res.status(500).json({ message: "Google login failed", error: err?.message || String(err) });
   }
-};
-
-// GET /api/auth/google - Google OAuth callback handler (for Google redirect)
-export const googleOAuthCallback = (req: Request, res: Response, next: NextFunction) => {
-  // You can use passport.authenticate here or custom logic
-  // For now, just send a message or redirect to frontend
-  res.status(200).json({ message: "Google OAuth callback received" });
 };

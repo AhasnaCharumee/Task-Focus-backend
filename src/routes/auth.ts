@@ -38,12 +38,6 @@ router.post(
 );
 
 
-/**
- * @route   GET /api/auth/google
- * @desc    Google OAuth callback (for Google redirect)
- * @access  Public
- */
-router.get("/google", googleOAuthCallback);
 
 /**
  * @route   POST /api/auth/google
@@ -58,10 +52,7 @@ router.post("/google", validateRequest(["idToken"]), googleSignIn);
  * @access  Public
  */
 router.get("/google", (req, res, next) => {
-  const host = req.get("host");
-  const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
-  const callbackURL = `${proto}://${host}/api/auth/google/callback`;
-  getPassport().authenticate("google", { scope: ["profile", "email"], callbackURL })(req, res, next);
+  getPassport().authenticate("google", { scope: ["profile", "email"] })(req, res, next);
 });
 
 /**
@@ -70,10 +61,7 @@ router.get("/google", (req, res, next) => {
  * @access  Public
  */
 router.get("/google/callback", (req, res, next) => {
-  const host = req.get("host");
-  const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
-  const callbackURL = `${proto}://${host}/api/auth/google/callback`;
-  getPassport().authenticate("google", { session: false, callbackURL }, (err: any, user: any) => {
+  getPassport().authenticate("google", { session: false }, (err: any, user: any) => {
     if (err) {
       console.error("Google auth error:", err);
       return res.status(500).json({ message: "Authentication failed", error: err.message });
@@ -81,16 +69,11 @@ router.get("/google/callback", (req, res, next) => {
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }
-    
     // Admin email restriction: Only focusai.reminder.bot@gmail.com can access admin dashboard
     if (user.role === "admin" && user.email !== "focusai.reminder.bot@gmail.com") {
-      const host = req.get("host");
-      const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
-      const callbackURL = `${proto}://${host}/api/auth/google/callback`;
       const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
       return res.redirect(`${frontendUrl}/login?error=unauthorized_admin`);
     }
-    
     const token = signToken({
       id: user._id,
       _id: user._id,
