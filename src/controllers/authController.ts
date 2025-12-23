@@ -1007,7 +1007,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
 
 // GOOGLE AUTH
-export const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
+// POST /api/auth/google - Google Sign-in with ID Token
+export const googleSignIn = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Expect frontend to send Google ID token (issued to your Google client id)
     const { idToken } = req.body;
@@ -1045,8 +1046,15 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
 
     try { await LoginHistory.create({ user: user._id, ip: req.ip, userAgent: req.headers["user-agent"] as string, success: true }); } catch (e) { console.warn(e); }
   } catch (err: any) {
-    console.error("googleAuth error:", err);
+    console.error("googleSignIn error:", err);
     try { await LoginHistory.create({ ip: req.ip, userAgent: req.headers["user-agent"] as string, success: false }); } catch (e) { console.warn(e); }
     return res.status(500).json({ message: "Google login failed", error: err?.message || String(err) });
   }
+};
+
+// GET /api/auth/google - Google OAuth callback handler (for Google redirect)
+export const googleOAuthCallback = (req: Request, res: Response, next: NextFunction) => {
+  // You can use passport.authenticate here or custom logic
+  // For now, just send a message or redirect to frontend
+  res.status(200).json({ message: "Google OAuth callback received" });
 };

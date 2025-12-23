@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup, login, googleAuth, createAdmin } from "../controllers/authController";
+import { signup, login, googleSignIn, googleOAuthCallback, createAdmin } from "../controllers/authController";
 import { validateRequest } from "../middlewares/validateRequest";
 import { signToken } from "../utils/jwt";
 let passport: any;
@@ -37,12 +37,20 @@ router.post(
   login
 );
 
+
 /**
- * @route   POST /api/auth/google
- * @desc    Google Sign-in with ID Token
+ * @route   GET /api/auth/google
+ * @desc    Google OAuth callback (for Google redirect)
  * @access  Public
  */
-router.post("/google", googleAuth);
+router.get("/google", googleOAuthCallback);
+
+/**
+ * @route   POST /api/auth/google
+ * @desc    Google Sign-in with ID Token (from client)
+ * @access  Public
+ */
+router.post("/google", validateRequest(["idToken"]), googleSignIn);
 
 /**
  * @route   GET /api/auth/google
