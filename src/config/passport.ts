@@ -41,6 +41,7 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_APP_ID || '',
       clientSecret: process.env.FACEBOOK_APP_SECRET || '',
+      callbackURL: "", // Required by types, set dynamically in route
       profileFields: ['id', 'displayName', 'photos'],
     },
     async (accessToken: string, refreshToken: string, profile: any, done: any) => {
