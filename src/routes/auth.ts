@@ -2,6 +2,8 @@ import { Router } from "express";
 import { signup, login, googleSignIn, createAdmin } from "../controllers/authController";
 import { validateRequest } from "../middlewares/validateRequest";
 import { signToken } from "../utils/jwt";
+
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 let passport: any;
 
 // Lazy load passport to avoid circular imports
@@ -71,7 +73,6 @@ router.get("/google/callback", (req, res, next) => {
     }
     // Admin email restriction: Only focusai.reminder.bot@gmail.com can access admin dashboard
     if (user.role === "admin" && user.email !== "focusai.reminder.bot@gmail.com") {
-      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
       return res.redirect(`${frontendUrl}/login?error=unauthorized_admin`);
     }
     const token = signToken({
@@ -90,7 +91,6 @@ router.get("/google/callback", (req, res, next) => {
       });
     }
     // Redirect to frontend with token
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     res.redirect(`${frontendUrl}/auth-callback?token=${token}&email=${user.email}&name=${user.name}`);
   })(req, res, next);
 });
@@ -134,7 +134,6 @@ router.get("/facebook/callback", (req, res, next) => {
     
     // Admin email restriction: Only focusai.reminder.bot@gmail.com can access admin dashboard
     if (user.role === "admin" && user.email !== "focusai.reminder.bot@gmail.com") {
-      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
       return res.redirect(`${frontendUrl}/login?error=unauthorized_admin`);
     }
     
@@ -154,7 +153,6 @@ router.get("/facebook/callback", (req, res, next) => {
       });
     }
     // Redirect to frontend with token
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     res.redirect(`${frontendUrl}/auth-callback?token=${token}&email=${user.email}&name=${user.name}`);
   })(req, res, next);
 });
@@ -192,7 +190,6 @@ router.get("/github/callback", (req, res, next) => {
     
     // Admin email restriction: Only focusai.reminder.bot@gmail.com can access admin dashboard
     if (user.role === "admin" && user.email !== "focusai.reminder.bot@gmail.com") {
-      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
       return res.redirect(`${frontendUrl}/login?error=unauthorized_admin`);
     }
     
@@ -212,7 +209,6 @@ router.get("/github/callback", (req, res, next) => {
       });
     }
     // Redirect to frontend with token
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     res.redirect(`${frontendUrl}/auth-callback?token=${token}&email=${user.email}&name=${user.name}`);
   })(req, res, next);
 });
