@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup, login, googleSignIn, googleOAuthCallback, createAdmin } from "../controllers/authController";
+import { signup, login, googleSignIn, createAdmin } from "../controllers/authController";
 import { validateRequest } from "../middlewares/validateRequest";
 import { signToken } from "../utils/jwt";
 let passport: any;
