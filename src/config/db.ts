@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/taskfocus";
+console.log("[DEBUG] MONGO_URI:", mongoUri);
 
 export const connectDB = async () => {
   try {
