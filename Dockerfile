@@ -4,15 +4,20 @@ FROM node:22-alpine
 # Create app directory
 WORKDIR /app
 
-# Install app dependencies
+
+# Install all dependencies (including dev)
 COPY package*.json ./
-RUN npm install --production
+RUN npm install
 
 # Copy app source
 COPY . .
 
+
 # Build (if using TypeScript)
 RUN npm run build
+
+# Remove dev dependencies to make image smaller (optional)
+RUN npm prune --production
 
 # Expose port
 EXPOSE 3000
