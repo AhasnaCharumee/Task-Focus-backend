@@ -65,7 +65,7 @@ const start = async () => {
   app.use("/api/test", testReminderRoutes);
   app.use("/api/test", testAdminRoutes);
 
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
   });
 };
