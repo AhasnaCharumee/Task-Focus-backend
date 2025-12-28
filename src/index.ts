@@ -46,6 +46,9 @@ app.get("/favicon.ico", (req, res) => {
   res.status(204).end();
 });
 
+
+const PORT = process.env.PORT || 3000;
+
 const start = async () => {
   await connectDB();
   app.use(passport.initialize());
@@ -61,6 +64,10 @@ const start = async () => {
   app.use("/api/feedback", feedbackRoutes);
   app.use("/api/test", testReminderRoutes);
   app.use("/api/test", testAdminRoutes);
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 };
 
 start();
