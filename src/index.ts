@@ -47,7 +47,7 @@ app.get("/favicon.ico", (req, res) => {
 });
 
 
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 const start = async () => {
   await connectDB();
