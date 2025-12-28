@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { connectDB } from '../src/config/db';
+import connectDB from '../src/config/db';
 import { User } from '../src/models/User';
 
 function parseArgs() {
