@@ -32,7 +32,13 @@ app.use((0, cors_1.default)({
             }
         }
         catch (e) { }
-        const allowed = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"];
+        const allowed = [
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:5175",
+            "https://task-focus-frontend-two.vercel.app",
+            "https://task-focus-frontend-784c.vercel.app"
+        ];
         if (allowed.includes(incomingOrigin))
             return callback(null, true);
         return callback(new Error("Not allowed by CORS"));
