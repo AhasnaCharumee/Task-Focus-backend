@@ -36,7 +36,6 @@ app.use((0, cors_1.default)({
             "http://localhost:5173",
             "http://localhost:5174",
             "http://localhost:5175",
-            "https://task-focus-frontend-two.vercel.app",
             "https://task-focus-frontend-784c.vercel.app"
         ];
         if (allowed.includes(incomingOrigin))
@@ -67,6 +66,15 @@ const start = async () => {
     app.use("/api/notifications", notifications_1.default);
     app.use("/api/export", export_1.default);
     app.use("/api/profile", profile_1.default);
+    app.get("/api/user/profile", (req, res, next) => {
+        const { authMiddleware } = require("./middlewares/auth");
+        const { getProfile } = require("./controllers/profileController");
+        return authMiddleware(req, res, (err) => {
+            if (err)
+                return next(err);
+            getProfile(req, res, next);
+        });
+    });
     app.use("/api/settings", settings_1.default);
     app.use("/api/feedback", feedback_1.default);
     app.use("/api/test", testReminder_1.default);

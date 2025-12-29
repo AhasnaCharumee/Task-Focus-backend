@@ -1,4 +1,3 @@
-
 import express from "express";
 import cors from "cors";
 import taskRoutes from "./routes/tasks";
@@ -65,6 +64,14 @@ const start = async () => {
   app.use("/api/notifications", notificationsRoutes);
   app.use("/api/export", exportRoutes);
   app.use("/api/profile", profileRoutes);
+  app.get("/api/user/profile", (req, res, next) => {
+    const { authMiddleware } = require("./middlewares/auth");
+    const { getProfile } = require("./controllers/profileController");
+    return authMiddleware(req, res, (err: any) => {
+      if (err) return next(err);
+      getProfile(req, res, next);
+    });
+  });
   app.use("/api/settings", settingsRoutes);
   app.use("/api/feedback", feedbackRoutes);
   app.use("/api/test", testReminderRoutes);
