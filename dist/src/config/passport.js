@@ -13,6 +13,7 @@ const User_1 = require("../models/User");
 passport_1.default.use(new passport_google_oauth20_1.Strategy({
     clientID: process.env.GOOGLE_CLIENT_ID || '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+    callbackURL: process.env.GOOGLE_CALLBACK_URL || '',
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         let user = await User_1.User.findOne({ googleId: profile.id });
@@ -36,7 +37,7 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
 passport_1.default.use(new passport_facebook_1.Strategy({
     clientID: process.env.FACEBOOK_APP_ID || '',
     clientSecret: process.env.FACEBOOK_APP_SECRET || '',
-    callbackURL: "", // Required by types, set dynamically in route
+    callbackURL: process.env.FACEBOOK_CALLBACK_URL || '',
     profileFields: ['id', 'displayName', 'photos'],
 }, async (accessToken, refreshToken, profile, done) => {
     try {
@@ -61,6 +62,7 @@ passport_1.default.use(new passport_facebook_1.Strategy({
 passport_1.default.use(new passport_github2_1.Strategy({
     clientID: process.env.GITHUB_CLIENT_ID || '',
     clientSecret: process.env.GITHUB_CLIENT_SECRET || '',
+    callbackURL: process.env.GITHUB_CALLBACK_URL || '',
     userAgent: 'FocusAI-App', // Required by GitHub API
 }, async (accessToken, refreshToken, profile, done) => {
     try {
