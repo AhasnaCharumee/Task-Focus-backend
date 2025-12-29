@@ -1,0 +1,223 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.googleSignIn = exports.login = exports.createAdmin = exports.signup = void 0;
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const User_1 = require("../models/User");
+const jwt_1 = require("../utils/jwt");
+const google_auth_library_1 = require("google-auth-library");
+const LoginHistory_1 = require("../models/LoginHistory");
+// SIGNUP (user only)
+const signup = async (req, res, next) => {
+    try {
+        console.log('signup body:', req.body);
+        const { name, email, password } = req.body;
+        const existing = await User_1.User.findOne({ email });
+        if (existing)
+            return res.status(409).json({ message: "User already exists" });
+        const hashed = await bcryptjs_1.default.hash(password, 12);
+        const user = await User_1.User.create({ name, email, password: hashed, role: "user" });
+        const token = (0, jwt_1.signToken)({ id: user._id, email: user.email, role: user.role });
+        // record successful signup/login event
+        try {
+            await LoginHistory_1.LoginHistory.create({ user: user._id, ip: req.ip, userAgent: req.headers["user-agent"], success: true });
+        }
+        catch (e) {
+            console.warn("Failed to write LoginHistory on signup:", e);
+        }
+        res.status(201).json({
+            message: "User created",
+            user: {
+                _id: user._id,
+                id: user._id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
+            },
+            token,
+        });
+    }
+    catch (err) {
+        console.error('signup error:', err);
+        // Return error details during debugging to help trace the issue
+        return res.status(500).json({ message: 'Signup failed', error: err?.message || String(err) });
+    }
+};
+exports.signup = signup;
+// ADMIN CREATE (admin-only action)
+const createAdmin = async (req, res, next) => {
+    try {
+        // Guard: require a one-time secret to create admin via this endpoint
+        const secret = req.headers["x-admin-secret"] || req.body?.secret;
+        const expected = process.env.ADMIN_CREATE_SECRET;
+        if (!expected) {
+            return res.status(500).json({ message: "ADMIN_CREATE_SECRET not configured on server" });
+        }
+        if (!secret || String(secret) !== expected) {
+            return res.status(403).json({ message: "Forbidden - invalid admin creation secret" });
+        }
+        const { name, email, password } = req.body;
+        const exists = await User_1.User.findOne({ email });
+        if (exists)
+            return res.status(409).json({ message: "Admin already exists" });
+        const hashed = await bcryptjs_1.default.hash(password, 12);
+        const admin = await User_1.User.create({ name, email, password: hashed, role: "admin" });
+        res.status(201).json({ message: "Admin created", admin });
+    }
+    catch (err) {
+        return res.status(500).json({ message: "Admin creation failed", error: err?.message || String(err) });
+    }
+};
+exports.createAdmin = createAdmin;
+// LOGIN
+const login = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User_1.User.findOne({ email });
+        if (!user) {
+            // log failed attempt without a user reference
+            try {
+                await LoginHistory_1.LoginHistory.create({ ip: req.ip, userAgent: req.headers["user-agent"], success: false, });
+            }
+            catch (e) {
+                console.warn(e);
+            }
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+        const valid = await bcryptjs_1.default.compare(password, user.password);
+        if (!valid) {
+            try {
+                await LoginHistory_1.LoginHistory.create({ user: user._id, ip: req.ip, userAgent: req.headers["user-agent"], success: false });
+            }
+            catch (e) {
+                console.warn(e);
+            }
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+        const token = (0, jwt_1.signToken)({
+            id: user._id,
+            email: user.email,
+            role: user.role,
+        });
+        res.status(200).json({
+            message: "Logged in",
+            token,
+            user: {
+                _id: user._id,
+                id: user._id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
+            },
+        });
+        try {
+            await LoginHistory_1.LoginHistory.create({ user: user._id, ip: req.ip, userAgent: req.headers["user-agent"], success: true });
+        }
+        catch (e) {
+            console.warn(e);
+        }
+    }
+    catch (err) {
+        return res.status(500).json({ message: "Login failed", error: err?.message || String(err) });
+    }
+};
+exports.login = login;
+// GOOGLE AUTH
+const googleSignIn = async (req, res, next) => {
+    try {
+        console.log('[DEBUG] googleAuth body:', req.body);
+        // Expect frontend to send Google ID token (issued to your Google client id)
+        const { idToken } = req.body;
+        if (!idToken) {
+            console.error('[ERROR] Missing idToken in request body');
+            return res.status(400).json({ message: "Missing idToken" });
+        }
+        const client = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+        let ticket, payload;
+        try {
+            ticket = await client.verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID });
+            payload = ticket.getPayload();
+        }
+        catch (verifyErr) {
+            console.error('[ERROR] Google ID token verification failed:', verifyErr?.message || String(verifyErr));
+            return res.status(400).json({ message: "Invalid Google token", error: verifyErr?.message || String(verifyErr) });
+        }
+        if (!payload || !payload.email) {
+            console.error('[ERROR] Google token payload missing email:', payload);
+            return res.status(400).json({ message: "Invalid Google token" });
+        }
+        const email = payload.email;
+        const name = payload.name || payload.email.split("@")[0];
+        const googleId = payload.sub; // Google's unique user id
+        let user;
+        try {
+            user = await User_1.User.findOne({ email });
+        }
+        catch (dbFindErr) {
+            console.error('[ERROR] User.findOne failed:', dbFindErr?.message || String(dbFindErr));
+            return res.status(500).json({ message: "Database error", error: dbFindErr?.message || String(dbFindErr) });
+        }
+        if (!user) {
+            // For OAuth-created users, generate a random password and store its hash
+            const randomPass = Math.random().toString(36).slice(2) + Date.now().toString(36);
+            let hashed;
+            try {
+                hashed = await bcryptjs_1.default.hash(randomPass, 12);
+            }
+            catch (hashErr) {
+                console.error('[ERROR] bcrypt.hash failed:', hashErr?.message || String(hashErr));
+                return res.status(500).json({ message: "Password hash error", error: hashErr?.message || String(hashErr) });
+            }
+            try {
+                user = await User_1.User.create({ name, email, password: hashed, role: "user", googleId });
+            }
+            catch (createErr) {
+                console.error('[ERROR] User.create failed:', createErr?.message || String(createErr));
+                return res.status(500).json({ message: "User creation error", error: createErr?.message || String(createErr) });
+            }
+        }
+        else if (!user.googleId && googleId) {
+            // If user exists but googleId not set (they previously signed up with email), link the Google id
+            user.googleId = googleId;
+            try {
+                await user.save();
+            }
+            catch (saveErr) {
+                console.error('[ERROR] user.save() failed:', saveErr?.message || String(saveErr));
+                return res.status(500).json({ message: "User update error", error: saveErr?.message || String(saveErr) });
+            }
+        }
+        let token;
+        try {
+            token = (0, jwt_1.signToken)({ id: user._id, email: user.email, role: user.role });
+        }
+        catch (tokenErr) {
+            console.error('[ERROR] signToken failed:', tokenErr?.message || String(tokenErr));
+            return res.status(500).json({ message: "Token generation error", error: tokenErr?.message || String(tokenErr) });
+        }
+        res.status(200).json({
+            message: "Google login successful",
+            token,
+            user: { _id: user._id, id: user._id, email: user.email, name: user.name, role: user.role },
+        });
+        try {
+            await LoginHistory_1.LoginHistory.create({ user: user._id, ip: req.ip, userAgent: req.headers["user-agent"], success: true });
+        }
+        catch (e) {
+            console.warn('[WARN] LoginHistory.create failed:', e);
+        }
+    }
+    catch (err) {
+        console.error("[FATAL] googleAuth error:", err);
+        try {
+            await LoginHistory_1.LoginHistory.create({ ip: req.ip, userAgent: req.headers["user-agent"], success: false });
+        }
+        catch (e) {
+            console.warn('[WARN] LoginHistory.create failed:', e);
+        }
+        return res.status(500).json({ message: "Google login failed", error: err?.message || String(err) });
+    }
+};
+exports.googleSignIn = googleSignIn;
