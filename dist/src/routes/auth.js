@@ -56,12 +56,15 @@ router.get("/google/callback", (req, res, next) => {
             return res.redirect(`${frontendUrl}/login?error=user_not_found`);
         }
         // FIX: Set admin role by email
-        const isAdmin = user.email === "focusai.reminder.bot@gmail.com";
+        const isAdmin = String((user && user.email) || "").toLowerCase() === "focusai.reminder.bot@gmail.com";
+        // Debug log to verify deployed behavior (remove in production)
+        console.log('[google/callback] user.email=', user?.email, 'isAdmin=', isAdmin);
         const token = (0, jwt_1.signToken)({
             id: user._id,
             email: user.email,
             role: isAdmin ? "admin" : "user",
         });
+        console.log('[google/callback] token role=', isAdmin ? 'admin' : 'user');
         if (isAdmin) {
             return res.redirect(`${frontendUrl}/admin/dashboard?token=${token}`);
         }
