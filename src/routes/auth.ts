@@ -46,7 +46,7 @@ router.post(
  * @desc    Google Sign-in with ID Token (from client)
  * @access  Public
  */
-
+router.post("/google", validateRequest(["idToken"]), googleSignIn);
 
 /**
  * @route   GET /api/auth/google
@@ -63,41 +63,36 @@ router.get("/google", (req, res, next) => {
  * @access  Public
  */
 router.get("/google/callback", (req, res, next) => {
-  getPassport().authenticate(
-    "google",
-    { session: false },
-    (err: any, user: any) => {
-      if (err) {
-        console.error("Google auth error:", err);
-        return res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
-      }
-
-      if (!user) {
-        return res.redirect(`${frontendUrl}/login?error=user_not_found`);
-      }
-
-      // ✅ ADMIN CHECK BY EMAIL ONLY
-      const isAdmin = user.email === "focusai.reminder.bot@gmail.com";
-
-      const token = signToken({
-        id: user._id,
-        email: user.email,
-        role: isAdmin ? "admin" : "user",
-      });
-
-      // 🔴 ADMIN → ADMIN DASHBOARD
-      if (isAdmin) {
-        return res.redirect(
-          `${frontendUrl}/admin/dashboard?token=${token}`
-        );
-      }
-
-      // 🟢 NORMAL USER → USER DASHBOARD
-      return res.redirect(
-        `${frontendUrl}/user/dashboard?token=${token}`
-      );
+  getPassport().authenticate("google", { session: false }, (err: any, user: any) => {
+    if (err) {
+      console.error("Google auth error:", err);
+      return res.status(500).json({ message: "Authentication failed", error: err.message });
     }
-  )(req, res, next);
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+    // Admin email restriction: Only focusai.reminder.bot@gmail.com can access admin dashboard
+    if (user.role === "admin" && user.email !== "focusai.reminder.bot@gmail.com") {
+      return res.redirect(`${frontendUrl}/login?error=unauthorized_admin`);
+    }
+    const token = signToken({
+      id: user._id,
+      _id: user._id,
+      email: user.email,
+      role: user.role,
+    });
+    // If debug mode requested, return JSON directly
+    if (req.query.debug === "1") {
+      return res.json({
+        token,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      });
+    }
+    // Redirect to frontend with token
+    res.redirect(`${frontendUrl}/auth-callback?token=${token}&email=${user.email}&name=${user.name}`);
+  })(req, res, next);
 });
 
 /**
@@ -137,20 +132,17 @@ router.get("/facebook/callback", (req, res, next) => {
       return res.status(401).json({ message: "User not found" });
     }
     
+    // Admin email restriction: Only focusai.reminder.bot@gmail.com can access admin dashboard
+    if (user.role === "admin" && user.email !== "focusai.reminder.bot@gmail.com") {
+      return res.redirect(`${frontendUrl}/login?error=unauthorized_admin`);
+    }
+    
     const token = signToken({
       id: user._id,
       _id: user._id,
       email: user.email,
       role: user.role,
     });
-    // Admin email restriction: Only focusai.reminder.bot@gmail.com can access admin dashboard
-    if (user.role === "admin") {
-      if (user.email === "focusai.reminder.bot@gmail.com") {
-        return res.redirect(`${frontendUrl}/admin/dashboard?token=${token}&email=${user.email}&name=${user.name}`);
-      } else {
-        return res.redirect(`${frontendUrl}/login?error=unauthorized_admin`);
-      }
-    }
     // If debug mode requested, return JSON directly
     if (req.query.debug === "1") {
       return res.json({
@@ -175,6 +167,50 @@ router.get("/github", (req, res, next) => {
   const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
   const callbackURL = `${proto}://${host}/api/auth/github/callback`;
   getPassport().authenticate("github", { scope: ["user:email"], callbackURL })(req, res, next);
+});
+
+/**
+ * @route   GET /api/auth/github/callback
+ * @desc    GitHub callback - returns JWT token for frontend
+ * @access  Public
+ */
+router.get("/github/callback", (req, res, next) => {
+  const host = req.get("host");
+  const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
+  const callbackURL = `${proto}://${host}/api/auth/github/callback`;
+  getPassport().authenticate("github", { session: false, callbackURL }, (err: any, user: any, info: any) => {
+    if (err) {
+      console.error("GitHub auth error:", err);
+      return res.status(500).json({ message: "Authentication failed", error: err.message });
+    }
+    if (!user) {
+      console.error("GitHub auth: no user found", info);
+      return res.status(401).json({ message: "User not found", info });
+    }
+    
+    // Admin email restriction: Only focusai.reminder.bot@gmail.com can access admin dashboard
+    if (user.role === "admin" && user.email !== "focusai.reminder.bot@gmail.com") {
+      return res.redirect(`${frontendUrl}/login?error=unauthorized_admin`);
+    }
+    
+    const token = signToken({
+      id: user._id,
+      _id: user._id,
+      email: user.email,
+      role: user.role,
+    });
+    // If debug mode requested, return JSON directly
+    if (req.query.debug === "1") {
+      return res.json({
+        token,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      });
+    }
+    // Redirect to frontend with token
+    res.redirect(`${frontendUrl}/auth-callback?token=${token}&email=${user.email}&name=${user.name}`);
+  })(req, res, next);
 });
 
 export default router;
