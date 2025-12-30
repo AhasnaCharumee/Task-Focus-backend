@@ -46,7 +46,7 @@ router.post(
  * @desc    Google Sign-in with ID Token (from client)
  * @access  Public
  */
-router.post("/google", validateRequest(["idToken"]), googleSignIn);
+
 
 /**
  * @route   GET /api/auth/google
@@ -63,40 +63,41 @@ router.get("/google", (req, res, next) => {
  * @access  Public
  */
 router.get("/google/callback", (req, res, next) => {
-  getPassport().authenticate("google", { session: false }, (err: any, user: any) => {
-    if (err) {
-      console.error("Google auth error:", err);
-      return res.status(500).json({ message: "Authentication failed", error: err.message });
-    }
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
-    const token = signToken({
-      id: user._id,
-      _id: user._id,
-      email: user.email,
-      role: user.role,
-    });
-    // Admin email restriction: Only focusai.reminder.bot@gmail.com can access admin dashboard
-    if (user.role === "admin") {
-      if (user.email === "focusai.reminder.bot@gmail.com") {
-        return res.redirect(`${frontendUrl}/admin/dashboard?token=${token}&email=${user.email}&name=${user.name}`);
-      } else {
-        return res.redirect(`${frontendUrl}/login?error=unauthorized_admin`);
+  getPassport().authenticate(
+    "google",
+    { session: false },
+    (err: any, user: any) => {
+      if (err) {
+        console.error("Google auth error:", err);
+        return res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
       }
-    }
-    // If debug mode requested, return JSON directly
-    if (req.query.debug === "1") {
-      return res.json({
-        token,
+
+      if (!user) {
+        return res.redirect(`${frontendUrl}/login?error=user_not_found`);
+      }
+
+      // ✅ ADMIN CHECK BY EMAIL ONLY
+      const isAdmin = user.email === "focusai.reminder.bot@gmail.com";
+
+      const token = signToken({
+        id: user._id,
         email: user.email,
-        name: user.name,
-        role: user.role,
+        role: isAdmin ? "admin" : "user",
       });
+
+      // 🔴 ADMIN → ADMIN DASHBOARD
+      if (isAdmin) {
+        return res.redirect(
+          `${frontendUrl}/admin/dashboard?token=${token}`
+        );
+      }
+
+      // 🟢 NORMAL USER → USER DASHBOARD
+      return res.redirect(
+        `${frontendUrl}/user/dashboard?token=${token}`
+      );
     }
-    // Redirect to frontend with token
-    res.redirect(`${frontendUrl}/auth-callback?token=${token}&email=${user.email}&name=${user.name}`);
-  })(req, res, next);
+  )(req, res, next);
 });
 
 /**
