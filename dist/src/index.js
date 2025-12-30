@@ -36,7 +36,7 @@ app.use((0, cors_1.default)({
             "http://localhost:5173",
             "http://localhost:5174",
             "http://localhost:5175",
-            "https://task-focus-frontend-1xnv-6b6li4uzb.vercel.app"
+            "https://task-focus-frontend-1xnv.vercel.app"
         ];
         if (allowed.includes(incomingOrigin))
             return callback(null, true);
