@@ -50,32 +50,22 @@ router.get("/google/callback", (req, res, next) => {
     getPassport().authenticate("google", { session: false }, (err, user) => {
         if (err) {
             console.error("Google auth error:", err);
-            return res.status(500).json({ message: "Authentication failed", error: err.message });
+            return res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
         }
         if (!user) {
-            return res.status(401).json({ message: "User not found" });
+            return res.redirect(`${frontendUrl}/login?error=user_not_found`);
         }
-        // Admin email restriction: Only focusai.reminder.bot@gmail.com can access admin dashboard
-        if (user.role === "admin" && user.email !== "focusai.reminder.bot@gmail.com") {
-            return res.redirect(`${frontendUrl}/login?error=unauthorized_admin`);
-        }
+        // FIX: Set admin role by email
+        const isAdmin = user.email === "focusai.reminder.bot@gmail.com";
         const token = (0, jwt_1.signToken)({
             id: user._id,
-            _id: user._id,
             email: user.email,
-            role: user.role,
+            role: isAdmin ? "admin" : "user",
         });
-        // If debug mode requested, return JSON directly
-        if (req.query.debug === "1") {
-            return res.json({
-                token,
-                email: user.email,
-                name: user.name,
-                role: user.role,
-            });
+        if (isAdmin) {
+            return res.redirect(`${frontendUrl}/admin/dashboard?token=${token}`);
         }
-        // Redirect to frontend with token
-        res.redirect(`${frontendUrl}/auth-callback?token=${token}&email=${user.email}&name=${user.name}`);
+        return res.redirect(`${frontendUrl}/user/dashboard?token=${token}`);
     })(req, res, next);
 });
 /**
