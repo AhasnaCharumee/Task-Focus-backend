@@ -1,9 +1,11 @@
 import { RequestHandler } from "express";
+import { AuthRequest } from "./auth";
 
 export const adminOnly: RequestHandler = (req, res, next) => {
-  const user = (req as any).user;
+  const authReq = req as AuthRequest;
 
-  if (!user || user.role !== "admin") {
+  if (!authReq.user || authReq.user.role !== "admin") {
+    console.warn("Unauthorized admin access attempt:", authReq.user?.email);
     return res.status(403).json({ message: "Admin access required" });
   }
 
