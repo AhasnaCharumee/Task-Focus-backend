@@ -12,17 +12,21 @@ const authMiddleware = (req, res, next) => {
         }
         const token = authHeader.split(" ")[1];
         const decoded = (0, jwt_1.verifyToken)(token);
-        // normalize common id shapes: decoded.id or decoded._id or decoded.userId
+        // normalize id
         const userId = decoded?.id || decoded?._id || decoded?.userId;
+        // 🔥 ADMIN EMAIL CHECK (SOURCE OF TRUTH)
+        const isAdmin = String(decoded?.email || "").toLowerCase() ===
+            "focusai.reminder.bot@gmail.com";
         authReq.user = {
             _id: userId,
             id: userId,
             email: decoded?.email,
-            role: decoded?.role,
+            role: isAdmin ? "admin" : "user",
         };
         next();
     }
     catch (error) {
+        console.error("Auth middleware error:", error);
         return res.status(403).json({ message: "Invalid token" });
     }
 };
