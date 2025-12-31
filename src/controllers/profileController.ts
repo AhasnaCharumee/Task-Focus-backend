@@ -13,8 +13,15 @@ export const getProfile = async (req: Request, res: Response) => {
     const userId = authReq.user?._id;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-    // Basic user info
-    const user = await User.findById(userId).select("-password").lean();
+    // Basic user info from DB (for profile fields) but trust role from JWT middleware
+    const dbUser: any = await User.findById(userId).select("-password").lean();
+    const responseUser = {
+      _id: authReq.user?._id || dbUser?._id,
+      id: authReq.user?.id || dbUser?._id,
+      email: authReq.user?.email || dbUser?.email,
+      name: dbUser?.name || authReq.user?.email?.split('@')[0] || 'User',
+      role: authReq.user?.role || dbUser?.role || 'user',
+    };
 
     const totalTasks = await Task.countDocuments({ user: userId });
     // If Task has a `completed` field, this will work; otherwise will be 0
@@ -35,7 +42,7 @@ export const getProfile = async (req: Request, res: Response) => {
     const lastActivity = await ActivityLog.findOne({ user: userId }).sort({ createdAt: -1 }).lean();
 
     return res.status(200).json({
-      user,
+      user: responseUser,
       stats: {
         totalTasks,
         completedTasks,
