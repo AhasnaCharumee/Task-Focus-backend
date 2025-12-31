@@ -5,7 +5,7 @@ Robust task manager backend with JWT + Google/Facebook/GitHub OAuth, reminder em
 ## Deployed URLs & Hostnames
 - **Backend (API):** https://task-focus-backend.fly.dev
 - **Frontend (primary):** https://task-focus-frontend-1xnv.vercel.app
-- 
+
 
 
 
@@ -77,3 +77,25 @@ This backend requires long-lived server processes and cron. Prefer Render/railwa
 - Gmail `535` login errors: regenerate app password, update `.env`, restart server.
 - OAuth redirect mismatch: verify provider callback URLs match `.env` values.
 - Cron not firing on free tiers: use a Background Worker or external scheduler hitting the test reminder endpoint.
+
+## Screenshots
+
+### Login Page
+![Login Page](screenshots/login.png)
+
+### Register Page
+![Register Page](screenshots/register.png)
+
+### User Dashboard
+![User Dashboard](screenshots/user-dashboard.png)
+
+### Admin Dashboard
+![Admin Dashboard](screenshots/admin-dashboard.png)
+
+### CRUD Example
+![Create Task](screenshots/create-task.png)
+
+### Advanced Feature
+![AI Feature](screenshots/ai-feature.png)
+
+(See the `screenshots/` folder for the image files referenced above.)
