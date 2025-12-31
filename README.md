@@ -2,6 +2,13 @@
 
 Robust task manager backend with JWT + Google/Facebook/GitHub OAuth, reminder emails (cron + Nodemailer), recurrence workers, and AI endpoints. Built with TypeScript, Express, Mongoose.
 
+## Deployed URLs & Hostnames
+- **Backend (API):** https://task-focus-backend.fly.dev
+- **Frontend (primary):** https://task-focus-frontend-1xnv.vercel.app
+- 
+
+
+
 ## Quick Start (Local)
 ```powershell
 cd c:\Users\ahasna\Documents\sem-3\RAD\task-management\backend
