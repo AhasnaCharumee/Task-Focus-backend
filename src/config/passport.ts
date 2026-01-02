@@ -43,16 +43,19 @@ passport.use(
       clientID: process.env.FACEBOOK_APP_ID || '',
       clientSecret: process.env.FACEBOOK_APP_SECRET || '',
       callbackURL: process.env.FACEBOOK_CALLBACK_URL || '',
-      profileFields: ['id', 'displayName', 'photos'],
+      profileFields: ['id', 'displayName', 'emails', 'photos'],
     },
     async (accessToken: string, refreshToken: string, profile: any, done: any) => {
       try {
         let user = await User.findOne({ facebookId: profile.id });
 
         if (!user) {
+          // Try to use real email if available, otherwise fallback to generated email
+          const email = profile.emails?.[0]?.value || `${profile.id}@facebook.com`;
+          
           user = new User({
             name: profile.displayName || 'User',
-            email: `${profile.id}@facebook.com`, // Generate email from Facebook ID
+            email: email,
             password: 'oauth-user-no-password',
             facebookId: profile.id,
             role: 'user',
