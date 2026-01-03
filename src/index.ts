@@ -52,7 +52,7 @@ app.get("/favicon.ico", (req, res) => {
 });
 
 
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT || '5000', 10);
 
 const start = async () => {
   await connectDB();
