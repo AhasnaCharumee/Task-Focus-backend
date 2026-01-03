@@ -9,6 +9,7 @@ const tasks_1 = __importDefault(require("./routes/tasks"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const ai_1 = __importDefault(require("./routes/ai"));
 const admin_1 = __importDefault(require("./routes/admin"));
+const analytics_1 = __importDefault(require("./routes/analytics"));
 const categories_1 = __importDefault(require("./routes/categories"));
 const notifications_1 = __importDefault(require("./routes/notifications"));
 const export_1 = __importDefault(require("./routes/export"));
@@ -54,7 +55,7 @@ app.get("/", (req, res) => {
 app.get("/favicon.ico", (req, res) => {
     res.status(204).end();
 });
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT || '5000', 10);
 const start = async () => {
     await (0, db_1.default)();
     app.use(passport_1.default.initialize());
@@ -62,6 +63,7 @@ const start = async () => {
     app.use("/api/tasks", tasks_1.default);
     app.use("/api/ai", ai_1.default);
     app.use("/api/admin", admin_1.default);
+    app.use("/api/analytics", analytics_1.default);
     app.use("/api/categories", categories_1.default);
     app.use("/api/notifications", notifications_1.default);
     app.use("/api/export", export_1.default);

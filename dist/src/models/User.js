@@ -8,8 +8,6 @@ const userSchema = new mongoose_1.Schema({
     password: { type: String, required: true },
     // optional Google subject id for users created via Google Sign-In
     googleId: { type: String },
-    // optional Facebook id for users created via Facebook Sign-In
-    facebookId: { type: String },
     // optional GitHub id for users created via GitHub Sign-In
     githubId: { type: String },
     // 🔥 Add role field

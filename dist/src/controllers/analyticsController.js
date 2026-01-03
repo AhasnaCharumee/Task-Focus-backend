@@ -5,7 +5,10 @@ const Task_1 = require("../models/Task");
 // 🔹 Get Analytics
 const getAnalytics = async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const userId = req.user?._id;
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
         const totalTasks = await Task_1.Task.countDocuments({ user: userId });
         const completedTasks = await Task_1.Task.countDocuments({ user: userId, completed: true });
         const pendingTasks = totalTasks - completedTasks;
@@ -14,7 +17,7 @@ const getAnalytics = async (req, res) => {
             totalTasks,
             completedTasks,
             pendingTasks,
-            completionRate: completionRate.toFixed(1),
+            completionRate: parseFloat(completionRate.toFixed(1)),
         });
     }
     catch (err) {

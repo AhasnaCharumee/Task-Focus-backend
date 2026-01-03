@@ -36,5 +36,24 @@ router.get("/google/callback", (req, res, next) => {
         return res.redirect(`${frontendUrl}/auth-callback?token=${token}`);
     })(req, res, next);
 });
+// GitHub OAuth Routes
+router.get("/github", (req, res, next) => {
+    getPassport().authenticate("github", { scope: ["user:email"] })(req, res, next);
+});
+router.get("/github/callback", (req, res, next) => {
+    getPassport().authenticate("github", { session: false }, (err, user) => {
+        if (err || !user) {
+            return res.redirect(`${frontendUrl}/login?error=github_auth_failed`);
+        }
+        const isAdmin = user.email?.toLowerCase() === "focusai.reminder.bot@gmail.com";
+        const token = (0, jwt_1.signToken)({
+            id: user._id,
+            email: user.email,
+            role: isAdmin ? "admin" : "user",
+        });
+        console.log("[GITHUB LOGIN]", user.email, isAdmin ? "ADMIN" : "USER");
+        return res.redirect(`${frontendUrl}/auth-callback?token=${token}`);
+    })(req, res, next);
+});
 router.post("/create-admin", (0, validateRequest_1.validateRequest)(["name", "email", "password"]), authController_1.createAdmin);
 exports.default = router;

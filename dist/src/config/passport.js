@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const passport_1 = __importDefault(require("passport"));
 const passport_google_oauth20_1 = require("passport-google-oauth20");
-const passport_facebook_1 = require("passport-facebook");
 // @ts-ignore - passport-github2 lacks type definitions
 const passport_github2_1 = require("passport-github2");
 const User_1 = require("../models/User");
@@ -23,31 +22,6 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
                 email: profile.emails?.[0]?.value || '',
                 password: 'oauth-user-no-password',
                 googleId: profile.id,
-                role: 'user',
-            });
-            await user.save();
-        }
-        return done(null, user);
-    }
-    catch (err) {
-        return done(err);
-    }
-}));
-// Facebook OAuth Strategy
-passport_1.default.use(new passport_facebook_1.Strategy({
-    clientID: process.env.FACEBOOK_APP_ID || '',
-    clientSecret: process.env.FACEBOOK_APP_SECRET || '',
-    callbackURL: process.env.FACEBOOK_CALLBACK_URL || '',
-    profileFields: ['id', 'displayName', 'photos'],
-}, async (accessToken, refreshToken, profile, done) => {
-    try {
-        let user = await User_1.User.findOne({ facebookId: profile.id });
-        if (!user) {
-            user = new User_1.User({
-                name: profile.displayName || 'User',
-                email: `${profile.id}@facebook.com`, // Generate email from Facebook ID
-                password: 'oauth-user-no-password',
-                facebookId: profile.id,
                 role: 'user',
             });
             await user.save();
