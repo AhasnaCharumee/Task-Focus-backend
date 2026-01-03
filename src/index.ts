@@ -4,6 +4,7 @@ import taskRoutes from "./routes/tasks";
 import authRoutes from "./routes/auth";
 import aiRoutes from "./routes/ai";
 import adminRoutes from "./routes/admin";
+import analyticsRoutes from "./routes/analytics";
 import categoriesRoutes from "./routes/categories";
 import notificationsRoutes from "./routes/notifications";
 import exportRoutes from "./routes/export";
@@ -60,6 +61,7 @@ const start = async () => {
   app.use("/api/tasks", taskRoutes);
   app.use("/api/ai", aiRoutes);
   app.use("/api/admin", adminRoutes);
+  app.use("/api/analytics", analyticsRoutes);
   app.use("/api/categories", categoriesRoutes);
   app.use("/api/notifications", notificationsRoutes);
   app.use("/api/export", exportRoutes);
