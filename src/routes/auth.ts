@@ -52,18 +52,18 @@ router.get("/google/callback", (req, res, next) => {
   )(req, res, next);
 });
 
-// Facebook OAuth routes
-router.get("/facebook", (req, res, next) => {
-  getPassport().authenticate("facebook", { scope: ["email", "public_profile"] })(req, res, next);
+// LinkedIn OAuth routes
+router.get("/linkedin", (req, res, next) => {
+  getPassport().authenticate("linkedin", { scope: ["r_emailaddress", "r_liteprofile"] })(req, res, next);
 });
 
-router.get("/facebook/callback", (req, res, next) => {
+router.get("/linkedin/callback", (req, res, next) => {
   getPassport().authenticate(
-    "facebook",
+    "linkedin",
     { session: false },
     (err: any, user: any) => {
       if (err || !user) {
-        const errorMsg = err?.message || "facebook_auth_failed";
+        const errorMsg = err?.message || "linkedin_auth_failed";
         return res.redirect(
           `${frontendUrl}/auth-callback?error=${encodeURIComponent(errorMsg)}`
         );
@@ -75,7 +75,7 @@ router.get("/facebook/callback", (req, res, next) => {
         role: user.role || "user",
       });
 
-      console.log("[FACEBOOK LOGIN]", user.email, user.role || "USER");
+      console.log("[LINKEDIN LOGIN]", user.email, user.role || "USER");
 
       // ✅ Redirect to auth-callback with token, email, and name
       return res.redirect(

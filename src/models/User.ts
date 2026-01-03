@@ -5,7 +5,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   googleId?: string;
-  facebookId?: string;
+  linkedinId?: string;
   githubId?: string;
   role: "user" | "admin"; // 🔥 NEW
   createdAt: Date;
@@ -19,8 +19,8 @@ const userSchema = new Schema<IUser>(
     password: { type: String, required: true },
     // optional Google subject id for users created via Google Sign-In
     googleId: { type: String },
-    // optional Facebook id for users created via Facebook Sign-In
-    facebookId: { type: String },
+    // optional LinkedIn id for users created via LinkedIn Sign-In
+    linkedinId: { type: String },
     // optional GitHub id for users created via GitHub Sign-In
     githubId: { type: String },
 

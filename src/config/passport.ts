@@ -1,6 +1,6 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { Strategy as FacebookStrategy } from 'passport-facebook';
+import { Strategy as LinkedInStrategy } from 'passport-linkedin-oauth2';
 // @ts-ignore - passport-github2 lacks type definitions
 import { Strategy as GitHubStrategy } from 'passport-github2';
 import { User } from '../models/User';
@@ -36,28 +36,27 @@ passport.use(
   )
 );
 
-// Facebook OAuth Strategy
+// LinkedIn OAuth Strategy
 passport.use(
-  new FacebookStrategy(
+  new LinkedInStrategy(
     {
-      clientID: process.env.FACEBOOK_APP_ID || '',
-      clientSecret: process.env.FACEBOOK_APP_SECRET || '',
-      callbackURL: process.env.FACEBOOK_CALLBACK_URL || '',
-      profileFields: ['id', 'displayName', 'emails', 'photos'],
+      clientID: process.env.LINKEDIN_CLIENT_ID || '',
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET || '',
+      callbackURL: process.env.LINKEDIN_CALLBACK_URL || '',
+      scope: ['r_emailaddress', 'r_liteprofile'],
     },
     async (accessToken: string, refreshToken: string, profile: any, done: any) => {
       try {
-        let user = await User.findOne({ facebookId: profile.id });
+        let user = await User.findOne({ linkedinId: profile.id });
 
         if (!user) {
-          // Try to use real email if available, otherwise fallback to generated email
-          const email = profile.emails?.[0]?.value || `${profile.id}@facebook.com`;
+          const email = profile.emails?.[0]?.value || `${profile.id}@linkedin.com`;
           
           user = new User({
-            name: profile.displayName || 'User',
+            name: profile.displayName || profile.name?.givenName || 'User',
             email: email,
             password: 'oauth-user-no-password',
-            facebookId: profile.id,
+            linkedinId: profile.id,
             role: 'user',
           });
           await user.save();
