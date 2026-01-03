@@ -43,7 +43,6 @@ passport.use(
       clientID: process.env.LINKEDIN_CLIENT_ID || '',
       clientSecret: process.env.LINKEDIN_CLIENT_SECRET || '',
       callbackURL: process.env.LINKEDIN_CALLBACK_URL || '',
-      scope: ['r_emailaddress', 'r_liteprofile'],
     },
     async (accessToken: string, refreshToken: string, profile: any, done: any) => {
       try {
@@ -86,7 +85,7 @@ passport.use(
         if (!user) {
           const email = profile.emails?.[0]?.value || `${profile.id}@github.com`;
           
-          // Check if user exists with same email (from Google, Facebook, or manual signup)
+          // Check if user exists with same email (from Google, LinkedIn, or manual signup)
           user = await User.findOne({ email });
           
           if (user) {

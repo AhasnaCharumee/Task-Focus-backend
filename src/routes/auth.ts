@@ -54,7 +54,7 @@ router.get("/google/callback", (req, res, next) => {
 
 // LinkedIn OAuth routes
 router.get("/linkedin", (req, res, next) => {
-  getPassport().authenticate("linkedin", { scope: ["r_emailaddress", "r_liteprofile"] })(req, res, next);
+  getPassport().authenticate("linkedin", { state: 'SOME_STATE_VALUE' })(req, res, next);
 });
 
 router.get("/linkedin/callback", (req, res, next) => {

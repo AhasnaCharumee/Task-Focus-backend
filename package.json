@@ -23,10 +23,10 @@
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.11",
     "passport": "^0.6.0",
-    "passport-linkedin-oauth2": "^2.0.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
-    "passport-jwt": "^4.0.1"
+    "passport-jwt": "^4.0.1",
+    "passport-linkedin-oauth2": "^2.0.0"
   },
   "optionalDependencies": {
     "csv-parse": "^5.6.0",
@@ -44,8 +44,10 @@
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^7.0.4",
     "@types/passport": "^1.0.9",
+    "@types/passport-linkedin-oauth2": "^1.0.9",
     "@types/passport-google-oauth20": "^2.0.8",
     "@types/passport-jwt": "^3.0.7",
+    "@types/passport-linkedin-oauth2": "^1.5.6",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
   }
