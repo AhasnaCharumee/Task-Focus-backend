@@ -35,39 +35,6 @@ passport.use(
   )
 );
 
-// LinkedIn OAuth Strategy
-passport.use(
-  new LinkedInStrategy(
-    {
-      clientID: process.env.LINKEDIN_CLIENT_ID || '',
-      clientSecret: process.env.LINKEDIN_CLIENT_SECRET || '',
-      callbackURL: process.env.LINKEDIN_CALLBACK_URL || '',
-    },
-    async (accessToken: string, refreshToken: string, profile: any, done: any) => {
-      try {
-        let user = await User.findOne({ linkedinId: profile.id });
-
-        if (!user) {
-          const email = profile.emails?.[0]?.value || `${profile.id}@linkedin.com`;
-          
-          user = new User({
-            name: profile.displayName || profile.name?.givenName || 'User',
-            email: email,
-            password: 'oauth-user-no-password',
-            linkedinId: profile.id,
-            role: 'user',
-          });
-          await user.save();
-        }
-
-        return done(null, user);
-      } catch (err) {
-        return done(err);
-      }
-    }
-  )
-);
-
 // GitHub OAuth Strategy
 passport.use(
   new GitHubStrategy(

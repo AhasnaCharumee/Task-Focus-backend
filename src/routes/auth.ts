@@ -2,6 +2,7 @@ import { Router } from "express";
 import { signup, login, googleSignIn, createAdmin } from "../controllers/authController";
 import { validateRequest } from "../middlewares/validateRequest";
 import { signToken } from "../utils/jwt";
+import { User } from "../models/User";
 
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 let passport: any;
