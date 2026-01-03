@@ -3,6 +3,7 @@ import { signup, login, googleSignIn, createAdmin } from "../controllers/authCon
 import { validateRequest } from "../middlewares/validateRequest";
 import { signToken } from "../utils/jwt";
 import { User } from "../models/User";
+import { verifyFirebaseToken, handleFirebaseUser } from "../config/passport";
 
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 let passport: any;
@@ -57,33 +58,13 @@ router.get("/google/callback", (req, res, next) => {
 router.post("/firebase", validateRequest(["idToken"]), async (req, res, next) => {
   try {
     const { idToken, name, email } = req.body;
-    const admin = require("firebase-admin");
     
     // Verify Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const decodedToken = await verifyFirebaseToken(idToken);
     const firebaseId = decodedToken.uid;
 
-    let user = await User.findOne({ firebaseId });
-
-    if (!user) {
-      // Check if user already exists with this email
-      user = await User.findOne({ email });
-      
-      if (user) {
-        // Link Firebase ID to existing user
-        user.firebaseId = firebaseId;
-        await user.save();
-      } else {
-        // Create new user
-        user = await User.create({
-          name: name || email.split("@")[0],
-          email,
-          password: "oauth-user-no-password",
-          firebaseId,
-          role: "user",
-        });
-      }
-    }
+    // Handle Firebase user (create or link)
+    const user = await handleFirebaseUser(firebaseId, email, name);
 
     const isAdmin = user.email?.toLowerCase() === "focusai.reminder.bot@gmail.com";
     const token = signToken({

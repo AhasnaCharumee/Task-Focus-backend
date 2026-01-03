@@ -2,7 +2,21 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 // @ts-ignore - passport-github2 lacks type definitions
 import { Strategy as GitHubStrategy } from 'passport-github2';
+import * as admin from 'firebase-admin';
 import { User } from '../models/User';
+
+// Initialize Firebase Admin SDK
+if (!admin.apps.length) {
+  const serviceAccount = {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  };
+
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount as any),
+  });
+}
 
 // Google OAuth Strategy
 passport.use(
@@ -34,6 +48,49 @@ passport.use(
     }
   )
 );
+
+// Firebase Authentication Handler
+export const verifyFirebaseToken = async (idToken: string) => {
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    return decodedToken;
+  } catch (err) {
+    console.error('Firebase token verification error:', err);
+    throw err;
+  }
+};
+
+// Firebase User Lookup/Creation
+export const handleFirebaseUser = async (firebaseId: string, email: string, name: string) => {
+  try {
+    let user = await User.findOne({ firebaseId });
+
+    if (!user) {
+      // Check if user already exists with this email
+      user = await User.findOne({ email });
+      
+      if (user) {
+        // Link Firebase ID to existing user
+        user.firebaseId = firebaseId;
+        await user.save();
+      } else {
+        // Create new user
+        user = await User.create({
+          name: name || email.split("@")[0],
+          email,
+          password: "oauth-user-no-password",
+          firebaseId,
+          role: "user",
+        });
+      }
+    }
+
+    return user;
+  } catch (err) {
+    console.error('Firebase user handling error:', err);
+    throw err;
+  }
+};
 
 // GitHub OAuth Strategy
 passport.use(
