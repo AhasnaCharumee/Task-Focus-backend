@@ -52,37 +52,62 @@ router.get("/google/callback", (req, res, next) => {
   )(req, res, next);
 });
 
-// LinkedIn OAuth routes
-router.get("/linkedin", (req, res, next) => {
-  getPassport().authenticate("linkedin", { state: 'SOME_STATE_VALUE' })(req, res, next);
-});
+// Firebase Authentication route
+router.post("/firebase", validateRequest(["idToken"]), async (req, res, next) => {
+  try {
+    const { idToken, name, email } = req.body;
+    const admin = require("firebase-admin");
+    
+    // Verify Firebase ID token
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const firebaseId = decodedToken.uid;
 
-router.get("/linkedin/callback", (req, res, next) => {
-  getPassport().authenticate(
-    "linkedin",
-    { session: false },
-    (err: any, user: any) => {
-      if (err || !user) {
-        const errorMsg = err?.message || "linkedin_auth_failed";
-        return res.redirect(
-          `${frontendUrl}/auth-callback?error=${encodeURIComponent(errorMsg)}`
-        );
+    let user = await User.findOne({ firebaseId });
+
+    if (!user) {
+      // Check if user already exists with this email
+      user = await User.findOne({ email });
+      
+      if (user) {
+        // Link Firebase ID to existing user
+        user.firebaseId = firebaseId;
+        await user.save();
+      } else {
+        // Create new user
+        user = await User.create({
+          name: name || email.split("@")[0],
+          email,
+          password: "oauth-user-no-password",
+          firebaseId,
+          role: "user",
+        });
       }
+    }
 
-      const token = signToken({
+    const isAdmin = user.email?.toLowerCase() === "focusai.reminder.bot@gmail.com";
+    const token = signToken({
+      id: user._id,
+      email: user.email,
+      role: isAdmin ? "admin" : "user",
+    });
+
+    console.log("[FIREBASE LOGIN]", user.email, isAdmin ? "ADMIN" : "USER");
+
+    res.json({
+      message: "Firebase login successful",
+      user: {
+        _id: user._id,
         id: user._id,
         email: user.email,
-        role: user.role || "user",
-      });
-
-      console.log("[LINKEDIN LOGIN]", user.email, user.role || "USER");
-
-      // ✅ Redirect to auth-callback with token, email, and name
-      return res.redirect(
-        `${frontendUrl}/auth-callback?token=${encodeURIComponent(token)}&email=${encodeURIComponent(user.email)}&name=${encodeURIComponent(user.name)}`
-      );
-    }
-  )(req, res, next);
+        name: user.name,
+        role: user.role,
+      },
+      token,
+    });
+  } catch (err: any) {
+    console.error("Firebase auth error:", err);
+    return res.status(401).json({ message: "Firebase authentication failed", error: err.message });
+  }
 });
 
 // GitHub OAuth routes

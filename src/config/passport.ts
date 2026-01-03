@@ -1,6 +1,5 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { Strategy as LinkedInStrategy } from 'passport-linkedin-oauth2';
 // @ts-ignore - passport-github2 lacks type definitions
 import { Strategy as GitHubStrategy } from 'passport-github2';
 import { User } from '../models/User';
@@ -85,7 +84,7 @@ passport.use(
         if (!user) {
           const email = profile.emails?.[0]?.value || `${profile.id}@github.com`;
           
-          // Check if user exists with same email (from Google, LinkedIn, or manual signup)
+          // Check if user exists with same email (from Google, Firebase, or manual signup)
           user = await User.findOne({ email });
           
           if (user) {
