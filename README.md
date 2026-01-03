@@ -1,6 +1,6 @@
 # Task & Focus Manager — Backend (TypeScript/Express/Mongo)
 
-Robust task manager backend with JWT + Google/Facebook/GitHub OAuth, reminder emails (cron + Nodemailer), recurrence workers, and AI endpoints. Built with TypeScript, Express, Mongoose.
+Robust task manager backend with JWT + Google/GitHub OAuth, reminder emails (cron + Nodemailer), recurrence workers, and AI endpoints. Built with TypeScript, Express, Mongoose.
 
 ## Deployed URLs & Hostnames
 - **Backend (API):** https://task-focus-backend.fly.dev
@@ -26,7 +26,6 @@ npm run build         # typecheck/compile to dist
 ### Optional / Feature Flags
 - `JWT_EXPIRES_IN` — JWT TTL (default `7d`).
 - Google OAuth: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`.
-- Firebase Authentication: `FIREBASE_PROJECT_ID`, `FIREBASE_PRIVATE_KEY`, `FIREBASE_CLIENT_EMAIL` — for token-based Firebase authentication.
 - GitHub OAuth: `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_CALLBACK_URL`.
 - Email: `EMAIL_USER`, `EMAIL_PASS` (Gmail App Password) — used by Nodemailer.
 - Reminders: `REMINDER_NO_DUE_DAYS` (int days before nagging no-due-date tasks; default 1).
@@ -57,10 +56,7 @@ This backend requires long-lived server processes and cron. Prefer Render/railwa
 - **OAuth Providers:** Google and GitHub strategies defined in `src/config/passport.ts`.
   - Callback URLs must match provider configs; update `.env` accordingly.
   - Frontend should start OAuth by visiting `/api/auth/{google|github}` and handle `/auth-callback` with the returned token.
-- **Firebase Authentication:** Token-based authentication via `POST /api/auth/firebase`.
-  - Endpoint accepts `{ idToken, name, email }` in request body.
-  - Verifies Firebase ID token and returns JWT for API access.
-  - Firebase Admin SDK initialized in `passport.ts` with service account credentials from `.env`.
+  - OAuth logins return JWT with user info and `role` field for admin detection.
 
 ## Scripts
 - `npm run dev` — ts-node-dev with restart.
