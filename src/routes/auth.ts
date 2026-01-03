@@ -2,8 +2,6 @@ import { Router } from "express";
 import { signup, login, googleSignIn, createAdmin } from "../controllers/authController";
 import { validateRequest } from "../middlewares/validateRequest";
 import { signToken } from "../utils/jwt";
-import { User } from "../models/User";
-import { verifyFirebaseToken, handleFirebaseUser } from "../config/passport";
 
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 let passport: any;
@@ -54,45 +52,7 @@ router.get("/google/callback", (req, res, next) => {
   )(req, res, next);
 });
 
-// Firebase Authentication route
-router.post("/firebase", validateRequest(["idToken"]), async (req, res, next) => {
-  try {
-    const { idToken, name, email } = req.body;
-    
-    // Verify Firebase ID token
-    const decodedToken = await verifyFirebaseToken(idToken);
-    const firebaseId = decodedToken.uid;
-
-    // Handle Firebase user (create or link)
-    const user = await handleFirebaseUser(firebaseId, email, name);
-
-    const isAdmin = user.email?.toLowerCase() === "focusai.reminder.bot@gmail.com";
-    const token = signToken({
-      id: user._id,
-      email: user.email,
-      role: isAdmin ? "admin" : "user",
-    });
-
-    console.log("[FIREBASE LOGIN]", user.email, isAdmin ? "ADMIN" : "USER");
-
-    res.json({
-      message: "Firebase login successful",
-      user: {
-        _id: user._id,
-        id: user._id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
-      token,
-    });
-  } catch (err: any) {
-    console.error("Firebase auth error:", err);
-    return res.status(401).json({ message: "Firebase authentication failed", error: err.message });
-  }
-});
-
-// GitHub OAuth routes
+// GitHub OAuth Routes
 router.get("/github", (req, res, next) => {
   getPassport().authenticate("github", { scope: ["user:email"] })(req, res, next);
 });
@@ -103,23 +63,22 @@ router.get("/github/callback", (req, res, next) => {
     { session: false },
     (err: any, user: any) => {
       if (err || !user) {
-        const errorMsg = err?.message || "github_auth_failed";
-        return res.redirect(
-          `${frontendUrl}/auth-callback?error=${encodeURIComponent(errorMsg)}`
-        );
+        return res.redirect(`${frontendUrl}/login?error=github_auth_failed`);
       }
+
+      const isAdmin =
+        user.email?.toLowerCase() === "focusai.reminder.bot@gmail.com";
 
       const token = signToken({
         id: user._id,
         email: user.email,
-        role: user.role || "user",
+        role: isAdmin ? "admin" : "user",
       });
 
-      console.log("[GITHUB LOGIN]", user.email, user.role || "USER");
+      console.log("[GITHUB LOGIN]", user.email, isAdmin ? "ADMIN" : "USER");
 
-      // ✅ Redirect to auth-callback with token, email, and name
       return res.redirect(
-        `${frontendUrl}/auth-callback?token=${encodeURIComponent(token)}&email=${encodeURIComponent(user.email)}&name=${encodeURIComponent(user.name)}`
+        `${frontendUrl}/auth-callback?token=${token}`
       );
     }
   )(req, res, next);
